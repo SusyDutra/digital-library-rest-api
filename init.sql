@@ -1,4 +1,4 @@
--- Criação das tabelas para Digital Library API
+-- SQL script to initialize the database schema for a library management system
 
 CREATE TABLE IF NOT EXISTS author (
     id SERIAL PRIMARY KEY,
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS author (
     nationality VARCHAR(100)
 );
 
-CREATE TABLE IF NOT EXISTS user (
+CREATE TABLE IF NOT EXISTS "user" (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS loan (
     fine_amount DECIMAL(10,2) DEFAULT 0.0,
     status VARCHAR(20) DEFAULT 'active',
     FOREIGN KEY (book_id) REFERENCES book(id),
-    FOREIGN KEY (user_id) REFERENCES user(id)
+    FOREIGN KEY (user_id) REFERENCES "user"(id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_book_author_id ON book(author_id);
