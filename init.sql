@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS author (
 CREATE TABLE IF NOT EXISTS "user" (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL
+    email VARCHAR(255) UNIQUE NOT NULL,
+    hashed_password VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS book (
@@ -51,12 +52,12 @@ INSERT INTO author (name, biography, nationality) VALUES
 ('Agatha Christie', 'Escritora britânica, rainha do crime', 'Britânica')
 ON CONFLICT DO NOTHING;
 
-INSERT INTO "user" (name, email) VALUES 
-('João Silva', 'joao@email.com'),
-('Maria Santos', 'maria@email.com'),
-('Pedro Oliveira', 'pedro@email.com'),
-('Ana Costa', 'ana@email.com'),
-('Carlos Ferreira', 'carlos@email.com')
+INSERT INTO "user" (name, email, hashed_password) VALUES 
+('João Silva', 'joao@email.com', '$2b$12$hashedpassword1'),
+('Maria Santos', 'maria@email.com', '$2b$12$hashedpassword2'),
+('Pedro Oliveira', 'pedro@email.com', '$2b$12$hashedpassword3'),
+('Ana Costa', 'ana@email.com', '$2b$12$hashedpassword4'),
+('Carlos Ferreira', 'carlos@email.com', '$2b$12$hashedpassword5')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO book (name, description, pages, author_id) VALUES 
@@ -76,4 +77,29 @@ INSERT INTO book (name, description, pages, author_id) VALUES
 ('Harry Potter e a Câmara Secreta', 'Segunda aventura de Harry Potter', 251, 6),
 ('Carrie', 'Primeiro romance publicado de Stephen King', 199, 7),
 ('Morte no Nilo', 'Mistério ambientado no Egito', 288, 8)
+ON CONFLICT DO NOTHING;
+
+-- Sample loan data
+INSERT INTO loan (book_id, user_id, loan_date, due_date, return_date, fine_amount, status) VALUES 
+-- Active loans
+(1, 1, '2024-01-15 10:00:00', '2024-02-15 23:59:59', NULL, 0.0, 'active'),
+(3, 2, '2024-01-20 14:30:00', '2024-02-20 23:59:59', NULL, 0.0, 'active'),
+(5, 3, '2024-01-25 09:15:00', '2024-02-25 23:59:59', NULL, 0.0, 'active'),
+
+-- Overdue loans (not returned)
+(7, 4, '2023-12-01 11:00:00', '2024-01-01 23:59:59', NULL, 0.0, 'active'),
+(9, 5, '2023-11-15 16:45:00', '2023-12-15 23:59:59', NULL, 0.0, 'active'),
+
+-- Loans returned on time
+(2, 1, '2023-12-01 10:00:00', '2024-01-01 23:59:59', '2023-12-28 15:30:00', 0.0, 'returned'),
+(4, 2, '2023-11-10 14:00:00', '2023-12-10 23:59:59', '2023-12-05 10:20:00', 0.0, 'returned'),
+(6, 3, '2023-10-15 09:30:00', '2023-11-15 23:59:59', '2023-11-10 14:45:00', 0.0, 'returned'),
+
+-- Loans returned late (with fine)
+(8, 4, '2023-10-01 12:00:00', '2023-11-01 23:59:59', '2023-11-08 16:30:00', 14.0, 'returned'),
+(10, 5, '2023-09-15 11:30:00', '2023-10-15 23:59:59', '2023-10-25 09:15:00', 20.0, 'returned'),
+
+-- Additional loan history
+(11, 1, '2023-08-01 10:15:00', '2023-09-01 23:59:59', '2023-08-28 14:20:00', 0.0, 'returned'),
+(12, 2, '2023-07-10 15:45:00', '2023-08-10 23:59:59', '2023-08-15 11:30:00', 10.0, 'returned')
 ON CONFLICT DO NOTHING;
