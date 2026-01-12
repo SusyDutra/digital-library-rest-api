@@ -8,8 +8,11 @@ class BookService:
         self.book_repository = book_repository
         self.author_repository = author_repository
 
-    def get_all_books(self):
-        return self.book_repository.get_all()
+    def get_all_books(self, skip: int = 0, limit: int = 10):
+        return self.book_repository.get_all(skip, limit)
+
+    def get_books_count(self):
+        return self.book_repository.get_total_count()
 
     def get_book(self, book_id: int):
         return self.book_repository.get_by_id(book_id)

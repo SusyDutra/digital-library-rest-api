@@ -9,8 +9,11 @@ class LoanRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_all(self):
-        return self.db.query(Loan).all()
+    def get_all(self, skip: int = 0, limit: int = 10):
+        return self.db.query(Loan).offset(skip).limit(limit).all()
+
+    def get_total_count(self):
+        return self.db.query(Loan).count()
 
     def get_by_id(self, loan_id: int):
         return self.db.query(Loan).filter(Loan.id == loan_id).first()
@@ -37,18 +40,31 @@ class LoanRepository:
             self.db.commit()
         return loan
 
-    def get_active_loans(self):
-        return self.db.query(Loan).filter(Loan.status == "active").all()
+    def get_active_loans(self, skip: int = 0, limit: int = 10):
+        return self.db.query(Loan).filter(Loan.status == "active").offset(skip).limit(limit).all()
 
-    def get_overdue_loans(self):
+    def get_active_loans_count(self):
+        return self.db.query(Loan).filter(Loan.status == "active").count()
+
+    def get_overdue_loans(self, skip: int = 0, limit: int = 10):
         current_time = datetime.utcnow()
         return self.db.query(Loan).filter(
             Loan.status == "active",
             Loan.loan_date + timedelta(days=14) < current_time
-        ).all()
+        ).offset(skip).limit(limit).all()
 
-    def get_user_loans(self, user_id: int):
-        return self.db.query(Loan).filter(Loan.user_id == user_id).all()
+    def get_overdue_loans_count(self):
+        current_time = datetime.utcnow()
+        return self.db.query(Loan).filter(
+            Loan.status == "active",
+            Loan.loan_date + timedelta(days=14) < current_time
+        ).count()
+
+    def get_user_loans(self, user_id: int, skip: int = 0, limit: int = 10):
+        return self.db.query(Loan).filter(Loan.user_id == user_id).offset(skip).limit(limit).all()
+
+    def get_user_loans_count(self, user_id: int):
+        return self.db.query(Loan).filter(Loan.user_id == user_id).count()
 
     def get_user_active_loans(self, user_id: int):
         return self.db.query(Loan).filter(
