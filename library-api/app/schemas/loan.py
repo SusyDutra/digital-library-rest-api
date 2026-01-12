@@ -12,7 +12,14 @@ class LoanCreate(LoanBase):
 class Loan(LoanBase):
     id: int
     loan_date: datetime
+    due_date: datetime
     return_date: Optional[datetime] = None
+    fine_amount: float = 0.0
+    status: str = "active"
 
     class Config:
         from_attributes = True
+
+class LoanReturn(BaseModel):
+    fine_amount: float
+    message: str
