@@ -50,6 +50,12 @@ class LoanRepository:
     def get_user_loans(self, user_id: int):
         return self.db.query(Loan).filter(Loan.user_id == user_id).all()
 
+    def get_user_active_loans(self, user_id: int):
+        return self.db.query(Loan).filter(
+            Loan.user_id == user_id,
+            Loan.status == "active"
+        ).all()
+
     def check_book_availability(self, book_id: int):
         active_loan = self.db.query(Loan).filter(
             Loan.book_id == book_id,

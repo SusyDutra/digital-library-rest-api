@@ -14,6 +14,10 @@ class LoanService:
         if not self.repository.check_book_availability(loan.book_id):
             raise HTTPException(status_code=400, detail="Book is not available")
         
+        user_active_loans = self.repository.get_user_active_loans(loan.user_id)
+        if len(user_active_loans) >= 3:
+            raise HTTPException(status_code=400, detail="User already has 3 active loans")
+        
         return self.repository.create(loan)
 
     def return_book(self, loan_id: int):
