@@ -21,7 +21,7 @@ class UserService:
         user_data['hashed_password'] = hashed_password
         del user_data['password']
         
-        return self.repository.create_with_password(user_data)
+        return self.repository.create(user_data)
 
     def delete_user(self, user_id: int):
         return self.repository.delete(user_id)
