@@ -15,13 +15,14 @@ docker-compose logs -f
 docker-compose down
 ```
 
+Docker was chosen for the facility it brings to deploy an application, as it allows only one command to be executed and runs on every platform.
+
 ### Endpoints
 
 - API: http://localhost:8000
-- Docs: http://localhost:8000/docs
 - PostgreSQL: localhost:5432
 
-### Credenciais do Banco
+### DB credentials
 
 - Database: library
 - User: library_user
