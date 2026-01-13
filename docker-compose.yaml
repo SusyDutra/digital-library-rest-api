@@ -24,11 +24,14 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql://library_user:library_pass@db:5432/library
+      LOG_LEVEL: INFO
+      LOG_FORMAT: json
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - ./library-api/app:/app/app
+      - ./logs:/app/logs
 
 volumes:
   postgres_data:
