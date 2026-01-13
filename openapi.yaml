@@ -1,0 +1,348 @@
+openapi: 3.0.3
+info:
+  title: Digital Library API
+  description: API for managing books, users, and loans in a digital library system
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /books:
+    get:
+      summary: List all books
+      description: Retrieve a paginated list of all books in the library catalog
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: size
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
+      responses:
+        "200":
+          description: Paginated list of books
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedBookResponse" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+    post:
+      summary: Create new book
+      description: Add a new book to the library catalog with author association
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BookCreate" }
+      responses:
+        "201":
+          description: Book created successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Book" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+  /books/{book_id}:
+    get:
+      summary: Get book by ID
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Book found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Book" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+  /books/{book_id}/availability:
+    get:
+      summary: Check book availability
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Book availability details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BookAvailability" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+  /users:
+    get:
+      summary: List all users
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        "200":
+          description: Paginated list of users
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedUserResponse" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+    post:
+      summary: Create new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UserCreate" }
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserResponse" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+  /users/{user_id}:
+    get:
+      summary: Get user by ID
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserResponse" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+  /users/{user_id}/loans:
+    get:
+      summary: Get user's loan history
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        "200":
+          description: Paginated list of loans
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedLoanResponse" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+  /loans:
+    get:
+      summary: List all loans
+      responses:
+        "200":
+          description: Paginated list of loans
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedLoanResponse" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+    post:
+      summary: Create new loan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoanCreate" }
+      responses:
+        "201":
+          description: Loan created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Loan" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+  /loans/{loan_id}/return:
+    put:
+      summary: Return book
+      parameters:
+        - name: loan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Book returned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LoanReturn" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+  /loans/active:
+    get:
+      summary: List active loans
+      responses:
+        "200":
+          description: Active loans
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedLoanResponse" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+  /loans/overdue:
+    get:
+      summary: List overdue loans
+      responses:
+        "200":
+          description: Overdue loans
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedLoanResponse" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+components:
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/NotFoundResponse" }
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/InternalServerErrorResponse" }
+
+  schemas:
+    NotFoundResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: Resource not found
+    InternalServerErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: Internal server error
+
+    PaginatedBookResponse:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Book" } }
+        total: { type: integer }
+        page: { type: integer }
+        size: { type: integer }
+        pages: { type: integer }
+
+    PaginatedUserResponse:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/UserResponse" } }
+        total: { type: integer }
+        page: { type: integer }
+        size: { type: integer }
+        pages: { type: integer }
+
+    PaginatedLoanResponse:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Loan" } }
+        total: { type: integer }
+        page: { type: integer }
+        size: { type: integer }
+        pages: { type: integer }
+
+    Book:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        pages: { type: integer }
+        author_id: { type: integer }
+        author: { $ref: "#/components/schemas/Author" }
+
+    BookCreate:
+      type: object
+      required: [name, pages, author_id]
+      properties:
+        name: { type: string }
+        description: { type: string, nullable: true }
+        pages: { type: integer }
+        author_id: { type: integer }
+
+    BookAvailability:
+      type: object
+      properties:
+        book_id: { type: integer }
+        name: { type: string }
+        available: { type: boolean }
+        current_loan_id: { type: integer, nullable: true }
+
+    Loan:
+      type: object
+      properties:
+        id: { type: integer }
+        book_id: { type: integer }
+        user_id: { type: integer }
+        loan_date: { type: string, format: date-time }
+        due_date: { type: string, format: date-time }
+        return_date: { type: string, format: date-time, nullable: true }
+        fine_amount: { type: number, format: float }
+        status: { type: string }
+
+    LoanCreate:
+      type: object
+      required: [book_id, user_id]
+      properties:
+        book_id: { type: integer }
+        user_id: { type: integer }
+
+    LoanReturn:
+      type: object
+      properties:
+        fine_amount: { type: number, format: float }
+        message: { type: string }
+
+    UserCreate:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+
+    UserResponse:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+
+    Author:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        biography: { type: string, nullable: true }
+        nationality: { type: string, nullable: true }
